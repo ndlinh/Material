@@ -106,6 +106,7 @@ fileprivate extension ToolbarController {
             
         case .full:
             container.frame = view.bounds
+	    container.frame.origin.y = statusBarOffsetAdjustment
         }
     }
     
