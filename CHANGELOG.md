@@ -1,3 +1,24 @@
+## 2.12.7
+
+* [pr-938](https://github.com/CosmicMind/Material/pull/938): An expansion on this PR to fix the lifecycle issues with transitions.
+
+## 2.12.6
+
+* Fixed issue where TabBar.lineColor was incorrectly being updated.
+
+## 2.12.5
+
+* Updated to [Motion 1.2.4](https://github.com/CosmicMind/Motion/releases/tag/1.2.4).
+* [issue-937](https://github.com/CosmicMind/Material/issues/937): Added @objc to `TabBar.lineColor` for access availability.
+* [pr-934](https://github.com/CosmicMind/Material/pull/934): Added access to the `TabBar.line` view.
+
+## 2.12.4
+
+* Updated to [Motion 1.2.3](https://github.com/CosmicMind/Motion/releases/tag/1.2.3).
+* [issue-919](https://github.com/CosmicMind/Material/issues/919): Fixed issue where lifecycle methods were being called on tab item view controllers prematurely.
+* [pr-923](https://github.com/CosmicMind/Material/pull/923): Merge PR that fixes [issue-919](https://github.com/CosmicMind/Material/issues/919).
+* [issue-931](https://github.com/CosmicMind/Material/issues/931): Fixed issue where selectedTabItem was not updated correctly during a porgrammatic transition. 
+
 ## 2.12.3
 
 * [issue-907](https://github.com/CosmicMind/Material/issues/907): Fixed Layout ordering issues.

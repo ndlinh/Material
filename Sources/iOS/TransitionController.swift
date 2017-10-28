@@ -56,10 +56,26 @@ open class TransitionController: UIViewController {
      is recommended to use the transitionFromRootViewController
      helper method.
      */
-    open internal(set) var rootViewController: UIViewController!
-    
-    /// The transition type used during a transition.
-    open var motionTransitionType = MotionTransitionType.fade
+    open internal(set) var rootViewController: UIViewController! {
+        willSet {
+            guard newValue != rootViewController else {
+                return
+            }
+            
+            guard let v = rootViewController else {
+                return
+            }
+            
+            removeViewController(viewController: v)
+        }
+        didSet {
+            guard oldValue != rootViewController else {
+                return
+            }
+            
+            prepare(viewController: rootViewController, in: container)
+        }
+    }
     
     /**
      An initializer that initializes the object with a NSCoder object.
@@ -87,6 +103,10 @@ open class TransitionController: UIViewController {
         self.rootViewController = rootViewController
     }
     
+    open override var shouldAutomaticallyForwardAppearanceMethods: Bool {
+        return false
+    }
+    
     open override func viewDidLoad() {
         super.viewDidLoad()
         prepare()
@@ -106,23 +126,15 @@ open class TransitionController: UIViewController {
      to the toViewController has completed.
      */
     open func transition(to viewController: UIViewController, completion: ((Bool) -> Void)? = nil) {
-        guard let fvc = rootViewController else {
-            return
-        }
-        
-        let tvc = viewController
-        
-        tvc.view.isHidden = false
-        tvc.view.frame = container.bounds
-        tvc.motionModalTransitionType = motionTransitionType
+        prepare(viewController: viewController, in: container)
         
         view.isUserInteractionEnabled = false
-        Motion.shared.transition(from: fvc, to: tvc, in: container) { [weak self, tvc = tvc, completion = completion] (isFinished) in
+        Motion.shared.transition(from: rootViewController, to: viewController, in: container) { [weak self, viewController = viewController, completion = completion] (isFinished) in
             guard let s = self else {
                 return
             }
             
-            s.rootViewController = tvc
+            s.rootViewController = viewController
             s.view.isUserInteractionEnabled = true
             completion?(isFinished)
         }
@@ -148,7 +160,7 @@ open class TransitionController: UIViewController {
         view.contentScaleFactor = Screen.scale
         
         prepareContainer()
-        prepareRootViewController()
+        prepare(viewController: rootViewController, in: container)
     }
 }
 
@@ -160,12 +172,6 @@ internal extension TransitionController {
         container.contentScaleFactor = Screen.scale
         container.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(container)
-    }
-    
-    /// A method that prepares the rootViewController.
-    @objc
-    func prepareRootViewController() {
-        prepare(viewController: rootViewController, in: container)
     }
     
     /**
@@ -181,6 +187,10 @@ internal extension TransitionController {
             return
         }
         
+        guard !childViewControllers.contains(v) else {
+            return
+        }
+        
         addChildViewController(v)
         container.addSubview(v.view)
         v.didMove(toParentViewController: self)
@@ -188,5 +198,17 @@ internal extension TransitionController {
         v.view.clipsToBounds = true
         v.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         v.view.contentScaleFactor = Screen.scale
+    }
+}
+
+internal extension TransitionController {
+    /**
+     Removes a given view controller from the childViewControllers array.
+     - Parameter at index: An Int for the view controller position.
+     */
+    func removeViewController(viewController: UIViewController) {
+        viewController.willMove(toParentViewController: nil)
+        viewController.view.removeFromSuperview()
+        viewController.removeFromParentViewController()
     }
 }
